@@ -60,7 +60,11 @@ if (array_key_exists('username', $_POST)
 		</div>
 		<script type="text/javascript">
 			var topic = document.location.hash.replace('#', '')
-				, counter = $('<div class="fotorama__count">').css({'color': 'white'})
+				, counter = setInterval(function(){
+					$('.fotorama__count').length || $('.fotorama__fullscreen-icon')
+						.before($('<div class="fotorama__count">').css({'color': 'white'}));
+					$('.fotorama__count').html(fotorama.size);
+					}, 5000)
 				, fotorama = $('.fotorama').fotorama({
 				allowfullscreen: 'native',
 				transition: 'crossfade',
@@ -70,11 +74,12 @@ if (array_key_exists('username', $_POST)
 				shuffle: true,
 				nav: false
 			}).data('fotorama');
+			fotorama.dataSource = [];
 
 			function poll(url) {
 				console.log(new Date(), url);
 				$.getJSON(url, function (data) {
-					console.log(data);
+					fotorama.dataSource.push(data);
 					var _data = [];
 					$.each(data.data.children, function(i, el) {
 						_data.push({img:el.data.url, caption:el.data.title});
@@ -91,8 +96,6 @@ if (array_key_exists('username', $_POST)
 					} else {
 						fotorama.load(_data);
 					}
-					$('.fotorama__count').length || $('.fotorama__fullscreen-icon').before(counter);
-					$('.fotorama__count').html(fotorama.size);
 				}).fail(function (jqXhr, textStatus, errorThrown) {
 					if (errorThrown == 'Please Login') {
 						$('.fotorama').html(errorThrown);
