@@ -59,36 +59,33 @@ if (array_key_exists('username', $_POST)
 			</form>
 		</div>
 		<script type="text/javascript">
-			var topic = document.location.hash.replace('#', '') || 'fotorama';
-			$.ajax({
-				url: '?url=/user/me/liked.json%3Flimit%3D100',
-				success: function (data) {
-					var urls = [];
+			var topic = document.location.hash.replace('#', '')
+				, fotorama = $('.fotorama').fotorama({
+				allowfullscreen: 'native',
+				transition: 'crossfade',
+				loop: true,
+				autoplay: true,
+				stopautoplayontouch: false,
+				shuffle: true,
+				nav: false
+			}).data('fotorama');
+
+			function poll(url) {
+				console.log(new Date());
+				$.getJSON(url, function (data) {
 					$.each(data.data.children, function(i, el) {
-						urls.push({img:el.data.url, caption:el.data.title});
+						fotorama.push({img:el.data.url, caption:el.data.title});
 					});
-					var fotorama = $('.fotorama').fotorama({
-						allowfullscreen: 'native',
-						transition: 'crossfade',
-						loop: true,
-						autoplay: true,
-						shuffle: true,
-						data: urls,
-					}).data('fotorama');
-					window.fotorama = fotorama;
-					// var o_nativeFullScreen = 1;
-					fotorama.toggleFullScreen();
-				},
-				error: function (jqXhr, textStatus, errorThrown) {
+					fotorama.shuffle();
+				}).fail(function (jqXhr, textStatus, errorThrown) {
 					if (errorThrown == 'Please Login') {
 						$('.fotorama').html(errorThrown);
 						$('.login').show();
 					}
-				},
-				complete: function (jqXHR, textStatus) {
-					// run again 
-				}
-			});
+				});
+			}
+			poll('?url=/user/me/liked.json%3Flimit%3D100');
+			topic && poll('?url=/r/' + topic + '.json%3Flimit%3D100');
 		</script>
 	</body>
 </html>
