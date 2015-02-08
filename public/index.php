@@ -71,12 +71,24 @@ if (array_key_exists('username', $_POST)
 			}).data('fotorama');
 
 			function poll(url) {
-				console.log(new Date());
+				console.log(new Date(), url);
 				$.getJSON(url, function (data) {
+					var _data = [];
 					$.each(data.data.children, function(i, el) {
-						fotorama.push({img:el.data.url, caption:el.data.title});
+						_data.push({img:el.data.url, caption:el.data.title});
 					});
-					fotorama.shuffle();
+					if (fotorama.data) {
+						$.each(_data, function(i, el) {
+							var exist = false;
+							$.each(fotorama.data, function(ii, ell) {
+								if (ell.img == el.img) exist = true;
+							});
+							exist || fotorama.data.push(el);
+						});
+						fotorama.shuffle.apply(fotorama);
+					} else {
+						fotorama.load(_data);
+					}
 				}).fail(function (jqXhr, textStatus, errorThrown) {
 					if (errorThrown == 'Please Login') {
 						$('.fotorama').html(errorThrown);
