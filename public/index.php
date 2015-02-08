@@ -94,6 +94,10 @@ if (array_key_exists('username', $_POST)
 						$('.fotorama').html(errorThrown);
 						$('.login').show();
 					}
+				}).always(function (jqXhr) {
+					setTimeout(function (){
+						poll(url);
+					}, 1000 * 60 * 30);
 				});
 			}
 			poll('?url=/user/me/liked.json%3Flimit%3D100');
