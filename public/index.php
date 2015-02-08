@@ -3,7 +3,7 @@
 if (array_key_exists('url', $_GET)
 	&& ! empty ($_GET['url']))
 {
-	if (empty($_COOKIE['reddit_session']))
+	if (empty($_COOKIE['reddit_session']) && strpos($_GET['url'], '/r/') !== 0)
 	{
 		header('HTTP/1.1 500 Please Login');
 		exit();
@@ -74,6 +74,7 @@ if (array_key_exists('username', $_POST)
 			function poll(url) {
 				console.log(new Date(), url);
 				$.getJSON(url, function (data) {
+					console.log(data);
 					var _data = [];
 					$.each(data.data.children, function(i, el) {
 						_data.push({img:el.data.url, caption:el.data.title});
