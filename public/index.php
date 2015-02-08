@@ -60,6 +60,7 @@ if (array_key_exists('username', $_POST)
 		</div>
 		<script type="text/javascript">
 			var topic = document.location.hash.replace('#', '')
+				, counter = $('<div class="fotorama__count">').css({'color': 'white'})
 				, fotorama = $('.fotorama').fotorama({
 				allowfullscreen: 'native',
 				transition: 'crossfade',
@@ -89,6 +90,8 @@ if (array_key_exists('username', $_POST)
 					} else {
 						fotorama.load(_data);
 					}
+					$('.fotorama__count').length || $('.fotorama__fullscreen-icon').before(counter);
+					$('.fotorama__count').html(fotorama.size);
 				}).fail(function (jqXhr, textStatus, errorThrown) {
 					if (errorThrown == 'Please Login') {
 						$('.fotorama').html(errorThrown);
