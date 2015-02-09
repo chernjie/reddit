@@ -108,7 +108,7 @@ if (array_key_exists('username', $_POST)
 				});
 			}
 			poll('?url=/user/me/liked.json%3Flimit%3D100');
-			topic && poll('?url=/r/' + topic + '.json%3Flimit%3D100');
+			topic && poll('?url=/r/' + topic + '.json%3Flimit%3D100%26sort%3Dtop');
 		</script>
 	</body>
 </html>
