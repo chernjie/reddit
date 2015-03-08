@@ -65,6 +65,7 @@ if (array_key_exists('username', $_POST)
 						.before($('<div class="fotorama__count">').css({'color': 'white'}));
 					$('.fotorama__count').html(fotorama.size);
 					}, 5000)
+				, lastTimeout = {}
 				, fotorama = $('.fotorama').fotorama({
 				allowfullscreen: 'native',
 				transition: 'crossfade',
@@ -78,6 +79,7 @@ if (array_key_exists('username', $_POST)
 
 			function poll(url) {
 				console.log(new Date(), url);
+				var timeout = 0;
 				$.getJSON(url, function (data) {
 					fotorama.dataSource.push(data);
 					var _data = [];
@@ -101,10 +103,13 @@ if (array_key_exists('username', $_POST)
 						$('.fotorama').html(errorThrown);
 						$('.login').show();
 					}
+					timeout = 5;
 				}).always(function (jqXhr) {
-					setTimeout(function (){
+					timeout = timeout || 30;
+					console.log(timeout);
+					lastTimeout[url] = setTimeout(function (){
 						poll(url);
-					}, 1000 * 60 * 30);
+					}, 1000 * 60 * timeout);
 				});
 			}
 			poll('?url=/user/me/liked.json%3Flimit%3D100');
