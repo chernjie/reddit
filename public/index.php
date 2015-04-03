@@ -75,13 +75,11 @@ if (array_key_exists('username', $_POST)
 				shuffle: true,
 				nav: false
 			}).data('fotorama');
-			fotorama.dataSource = [];
 
 			function poll(url) {
 				console.log(new Date(), url);
 				var timeout = 0;
 				$.getJSON(url, function (data) {
-					fotorama.dataSource.push(data);
 					var _data = [];
 					$.each(data.data.children, function(i, el) {
 						_data.push({img:el.data.url, caption:el.data.title});
