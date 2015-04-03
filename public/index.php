@@ -82,6 +82,9 @@ if (array_key_exists('username', $_POST)
 				$.getJSON(url, function (data) {
 					var _data = [];
 					$.each(data.data.children, function(i, el) {
+						// if media_embed not empty, do something else
+						// if url has /a/, show collection
+						if (el.data.url.match(/\/a\//)) return;
 						_data.push({img:el.data.url, caption:el.data.title});
 					});
 					if (fotorama.data) {
