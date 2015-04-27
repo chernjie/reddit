@@ -76,6 +76,18 @@ if (array_key_exists('username', $_POST)
 				nav: false
 			}).data('fotorama');
 
+			var data = JSON.parse(localStorage.getItem('fotorama')) || [];
+			if (data.length) {
+				fotorama.load(data);
+			}
+
+			function localStoragePush(key, element) {
+				var data = JSON.parse(localStorage.getItem(key)) || [];
+				if (! data.push) return;
+				data.push(element);
+				localStorage.setItem(key, JSON.stringify(data));
+			}
+
 			function poll(url) {
 				console.log(new Date(), url);
 				var timeout = 0;
@@ -93,11 +105,15 @@ if (array_key_exists('username', $_POST)
 							$.each(fotorama.data, function(ii, ell) {
 								if (ell.img == el.img) exist = true;
 							});
-							exist || fotorama.data.push(el);
+							if (! exist) {
+								fotorama.data.push(el);
+								localStoragePush('fotorama', el);
+							}
 						});
 						fotorama.shuffle.apply(fotorama);
 					} else {
 						fotorama.load(_data);
+						localStorage.setItem('fotorama', JSON.stringify(_data));
 					}
 				}).fail(function (jqXhr, textStatus, errorThrown) {
 					if (errorThrown == 'Please Login') {
