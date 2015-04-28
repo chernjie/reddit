@@ -49,7 +49,7 @@ if (array_key_exists('username', $_POST)
 		<link  href="http://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.3/fotorama.css" rel="stylesheet"> <!-- 3 KB -->
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.3/fotorama.js"></script> <!-- 16 KB -->
 	</head>
-	<body style="background-color: #A6A6A6;">
+	<body style="background-color: #A6A6A6; font-family: verdana;">
 		<div class="fotorama"></div>
 		<div class="login" style="display:none;">
 			<form method="post" action="">
@@ -60,11 +60,6 @@ if (array_key_exists('username', $_POST)
 		</div>
 		<script type="text/javascript">
 			var topic = document.location.hash.replace('#', '')
-				, counter = setInterval(function(){
-					$('.fotorama__count').length || $('.fotorama__fullscreen-icon')
-						.before($('<div class="fotorama__count">').css({'color': 'white'}));
-					$('.fotorama__count').html(fotorama.size);
-					}, 5000)
 				, lastTimeout = {}
 				, fotorama = $('.fotorama').fotorama({
 				allowfullscreen: 'native',
@@ -73,13 +68,9 @@ if (array_key_exists('username', $_POST)
 				autoplay: true,
 				stopautoplayontouch: false,
 				shuffle: true,
+				arrows: false,
 				nav: false
 			}).data('fotorama');
-
-			var data = JSON.parse(localStorage.getItem('fotorama')) || [];
-			if (data.length) {
-				fotorama.load(data);
-			}
 
 			function localStoragePush(key, element) {
 				var data = JSON.parse(localStorage.getItem(key)) || [];
@@ -97,7 +88,7 @@ if (array_key_exists('username', $_POST)
 						// if media_embed not empty, do something else
 						// if url has /a/, show collection
 						if (el.data.url.match(/\/a\//)) return;
-						_data.push({img:el.data.url, caption:el.data.title});
+						_data.push({id: el.data.id, img:el.data.url, caption:el.data.title});
 					});
 					if (fotorama.data) {
 						$.each(_data, function(i, el) {
@@ -127,8 +118,13 @@ if (array_key_exists('username', $_POST)
 					lastTimeout[url] = setTimeout(function (){
 						poll(url);
 					}, 1000 * 60 * timeout);
+					$('.fotorama__count').length || $('.fotorama__fullscreen-icon')
+						.before($('<div class="fotorama__count">').css({'color': 'white'}));
+					$('.fotorama__count').html(fotorama.size);
 				});
 			}
+
+			fotorama.load(JSON.parse(localStorage.getItem('fotorama')));
 			poll('?url=/user/me/liked.json%3Flimit%3D100');
 			topic && poll('?url=/r/' + topic + '.json%3Flimit%3D100%26sort%3Dtop');
 		</script>
