@@ -15,6 +15,11 @@ if (array_key_exists('url', $_GET)
 	curl_setopt($curl, CURLOPT_COOKIE, 'reddit_session=' .$_COOKIE['reddit_session']);
 	curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	if (! empty($_POST['POST']))
+	{
+		curl_setopt($curl, CURLOPT_POST, true);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($_POST));
+	}
 	// curl_setopt($curl, CURLOPT_HEADER, true);
 	$response = curl_exec($curl);
 	strlen($response) < 10 && header('HTTP/1.1 500 Please Login');
@@ -61,6 +66,7 @@ if (array_key_exists('username', $_POST)
 		<script type="text/javascript">
 			var topic = document.location.hash.replace('#', '')
 				, lastTimeout = {}
+				, r = {config: {}}
 				, fotorama = $('.fotorama').fotorama({
 				allowfullscreen: 'native',
 				transition: 'crossfade',
@@ -79,6 +85,41 @@ if (array_key_exists('username', $_POST)
 				localStorage.setItem(key, JSON.stringify(data));
 			}
 
+			function updateCounter() {
+				if ($('.fotorama__count').length > 0) {
+					return $('.fotorama__count').html(fotorama.size);
+				}
+				$('.fotorama__fullscreen-icon')
+					.before($('<div class="fotorama__count">')
+					.css({'color': 'white'}));
+				$.getJSON('?url=/api/me.json', function(data) {
+					r.config.modhash = data.data.modhash;
+				});
+				$('.fotorama__wrap').prepend(
+					$('<div>^^</div>').css({'color': 'white', 'float':'right'})
+						.click(function(event){
+							console.log("clicked on "+fotorama.activeFrame.id);
+							if (! r.config.modhash) return;
+							$.ajax({
+								  url: '?url=/api/vote'
+								, method: 'POST'
+								, data: {
+									  dir:1
+									, id: fotorama.activeFrame.id
+									, uh: r.config.modhash
+									, vh: 'VVoteHash'
+								}
+								, success: function(data) {
+									console.log("successful", data);
+								}
+								, error: function(jqXhr, textStatus, errorThrown){
+									console.log("fail", textStatus, errorThrown);
+								}
+							});
+						})
+				);
+			}
+
 			function poll(url) {
 				console.log(new Date(), url);
 				var timeout = 0;
@@ -88,7 +129,7 @@ if (array_key_exists('username', $_POST)
 						// if media_embed not empty, do something else
 						// if url has /a/, show collection
 						if (el.data.url.match(/\/a\//)) return;
-						_data.push({id: el.data.id, img:el.data.url, caption:el.data.title});
+						_data.push({id:el.data.id, img:el.data.url.replace(/gifv$/, 'gif'), caption:el.data.title});
 					});
 					if (fotorama.data) {
 						$.each(_data, function(i, el) {
@@ -118,13 +159,12 @@ if (array_key_exists('username', $_POST)
 					lastTimeout[url] = setTimeout(function (){
 						poll(url);
 					}, 1000 * 60 * timeout);
-					$('.fotorama__count').length || $('.fotorama__fullscreen-icon')
-						.before($('<div class="fotorama__count">').css({'color': 'white'}));
-					$('.fotorama__count').html(fotorama.size);
+					updateCounter();
 				});
 			}
 
 			fotorama.load(JSON.parse(localStorage.getItem('fotorama')));
+			updateCounter();
 			poll('?url=/user/me/liked.json%3Flimit%3D100');
 			topic && poll('?url=/r/' + topic + '.json%3Flimit%3D100%26sort%3Dtop');
 		</script>
