@@ -88,12 +88,15 @@ header('Cache-Control: private, max-age=86400');
 			}
 
 			function updateCounter() {
-				if ($('.fotorama__count').length > 0) {
-					return $('.fotorama__count').html(fotorama.size);
+				if (! $('.fotorama__count').length) {
+					$('.fotorama__fullscreen-icon')
+						.before($('<div class="fotorama__count">')
+						.css({'color': 'white'}));
 				}
-				$('.fotorama__fullscreen-icon')
-					.before($('<div class="fotorama__count">')
-					.css({'color': 'white'}));
+				return $('.fotorama__count').html(fotorama.size);
+			}
+
+			function addUpvote() {
 				$.getJSON('?url=/api/me.json', function(data) {
 					r.config.modhash = data.data.modhash;
 				});
