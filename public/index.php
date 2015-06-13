@@ -5,7 +5,7 @@ if (array_key_exists('url', $_GET)
 {
 	if (empty($_COOKIE['reddit_session']) && strpos($_GET['url'], '/r/') !== 0)
 	{
-		header('HTTP/1.1 500 Please Login');
+		header('HTTP/1.1 403 Please Login');
 		exit();
 	}
 	header('Content-Type: application/json');
@@ -22,7 +22,7 @@ if (array_key_exists('url', $_GET)
 	}
 	// curl_setopt($curl, CURLOPT_HEADER, true);
 	$response = curl_exec($curl);
-	strlen($response) < 10 && header('HTTP/1.1 500 Please Login');
+	strlen($response) < 10 && header('HTTP/1.1 403 Please Login');
 	exit($response);
 }
 if (array_key_exists('username', $_POST)
