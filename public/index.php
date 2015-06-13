@@ -45,6 +45,8 @@ if (array_key_exists('username', $_POST)
 	setcookie('reddit_session', $response['json']['data']['cookie']);
 	// exit($response);
 }
+
+header('Cache-Control: private, max-age=86400');
 ?>
 <html>
 	<head>
