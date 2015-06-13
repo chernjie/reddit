@@ -87,6 +87,16 @@ header('Cache-Control: private, max-age=86400');
 				localStorage.setItem(key, JSON.stringify(data));
 			}
 
+			function deleteFromLocalStorage(key, activeFrameId) {
+				var data = JSON.parse(localStorage.getItem(key)) || [];
+				var index = [];
+				if (! data.push) return;
+				$.each(data, function (index, element) {
+					element.id === activeFrameId && data.splice(index, 1);
+				})
+				localStorage.setItem(key, JSON.stringify(data));
+			}
+
 			function updateCounter() {
 				if (! $('.fotorama__count').length) {
 					$('.fotorama__fullscreen-icon')
