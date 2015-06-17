@@ -80,50 +80,39 @@ header('Cache-Control: private, max-age=86400');
 				nav: false
 			}).data('fotorama');
 
-			function localStoragePush(key, element) {
-				var data = JSON.parse(localStorage.getItem(key)) || [];
-				if (! data.push) return;
-				data.push(element);
-				localStorage.setItem(key, JSON.stringify(data));
-			}
-
-			function deleteFromLocalStorage(key, activeFrameId) {
-				var data = JSON.parse(localStorage.getItem(key)) || [];
-				if (! data.splice) return;
-				$.each(data, function (index, element) {
+			function deleteImage(activeFrameId) {
+				$.each(fotorama.data, function (index, element) {
 					if (typeof element !== "object") return;
 					if (element.id === activeFrameId) {
 						console.log(index, element);
-						data.splice(index, 1);
+						fotorama.splice(index, 1);
 					}
 				});
-				localStorage.setItem(key, JSON.stringify(data));
+				persistToLocalStorage('fotorama', fotorama.data);
 			}
 
-			function uniqLocalStorage(key) {
-				var holder = {},
-					data = JSON.parse(localStorage.getItem(key)) || [];
-				$.each(data, function (index, element) {
+			function uniqFotoramaCollection() {
+				var holder = {};
+				$.each(fotorama.data, function (index, element) {
 					if (typeof element !== "object") return;
 					if (holder[element.id]) {
 						console.log(index, holder[element.id].index, element);
-						data.splice(index, 1);
+						fotorama.splice(index, 1);
 					} else {
 						element.index = index;
 						holder[element.id] = element;
 					}
 				});
-				localStorage.setItem(key, JSON.stringify(data));
+				persistToLocalStorage('fotorama', fotorama.data);
 			}
 
-			function getFromLocalStorage(key, activeFrameId) {
-				var data = JSON.parse(localStorage.getItem(key)) || [];
+			function persistToLocalStorage(key, data) {
+				var newData = [];
 				$.each(data, function (index, element) {
 					if (typeof element !== "object") return;
-					if (element.id === activeFrameId) {
-						console.log(index, element);
-					}
+					newData.push({id:element.id, img:element.img, caption:element.caption});
 				});
+				localStorage.setItem(key, JSON.stringify(newData));
 			}
 
 			function updateCounter() {
@@ -177,20 +166,21 @@ header('Cache-Control: private, max-age=86400');
 					});
 					if (fotorama.data) {
 						$.each(_data, function(i, el) {
+							if (typeof el !== "object") return;
 							var exist = false;
 							$.each(fotorama.data, function(ii, ell) {
+								if (typeof ell !== "object") return;
 								if (ell.img == el.img) exist = true;
 							});
 							if (! exist) {
-								fotorama.data.push(el);
-								localStoragePush('fotorama', el);
+								fotorama.push(el);
 							}
 						});
 						fotorama.shuffle.apply(fotorama);
 					} else {
 						fotorama.load(_data);
-						localStorage.setItem('fotorama', JSON.stringify(_data));
 					}
+					persistToLocalStorage('fotorama', fotorama.data);
 				}).fail(function (jqXhr, textStatus, errorThrown) {
 					if (errorThrown == 'Please Login') {
 						$('.fotorama').html(errorThrown);
