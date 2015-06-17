@@ -89,12 +89,41 @@ header('Cache-Control: private, max-age=86400');
 
 			function deleteFromLocalStorage(key, activeFrameId) {
 				var data = JSON.parse(localStorage.getItem(key)) || [];
-				var index = [];
-				if (! data.push) return;
+				if (! data.splice) return;
 				$.each(data, function (index, element) {
-					element.id === activeFrameId && data.splice(index, 1);
-				})
+					if (typeof element !== "object") return;
+					if (element.id === activeFrameId) {
+						console.log(index, element);
+						data.splice(index, 1);
+					}
+				});
 				localStorage.setItem(key, JSON.stringify(data));
+			}
+
+			function uniqLocalStorage(key) {
+				var holder = {},
+					data = JSON.parse(localStorage.getItem(key)) || [];
+				$.each(data, function (index, element) {
+					if (typeof element !== "object") return;
+					if (holder[element.id]) {
+						console.log(index, holder[element.id].index, element);
+						data.splice(index, 1);
+					} else {
+						element.index = index;
+						holder[element.id] = element;
+					}
+				});
+				localStorage.setItem(key, JSON.stringify(data));
+			}
+
+			function getFromLocalStorage(key, activeFrameId) {
+				var data = JSON.parse(localStorage.getItem(key)) || [];
+				$.each(data, function (index, element) {
+					if (typeof element !== "object") return;
+					if (element.id === activeFrameId) {
+						console.log(index, element);
+					}
+				});
 			}
 
 			function updateCounter() {
@@ -170,7 +199,7 @@ header('Cache-Control: private, max-age=86400');
 					timeout = 5;
 				}).always(function (jqXhr) {
 					timeout = timeout || 30;
-					console.log(timeout);
+					console.log('trying again in ' + timeout + ' minutes');
 					lastTimeout[url] = setTimeout(function (){
 						poll(url);
 					}, 1000 * 60 * timeout);
