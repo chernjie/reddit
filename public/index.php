@@ -46,7 +46,7 @@ if (array_key_exists('username', $_POST)
 	// exit($response);
 }
 
-header('Cache-Control: private, max-age=86400');
+header('Cache-Control: private, max-age=' . (30 * 24 * 60 * 60));
 ?>
 <html>
 	<head>
