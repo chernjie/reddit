@@ -197,6 +197,14 @@ header('Cache-Control: private, max-age=86400');
 				});
 			}
 
+			$(document).keydown(function( event ) {
+				if ( event.which == 68 ) {
+					event.preventDefault();
+					deleteImage(fotorama.activeFrame.id);
+					updateCounter();
+				}
+			});
+
 			fotorama.load(JSON.parse(localStorage.getItem('fotorama')));
 			updateCounter();
 			poll('?url=/user/me/liked.json%3Flimit%3D100');
