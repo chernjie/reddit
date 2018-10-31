@@ -1,5 +1,32 @@
 <?php
 
+if (array_key_exists('img', $_GET)
+	&& ! empty ($_GET['img']))
+{
+	$img = $_GET['img'];
+	if (preg_match('/(jpg|jpeg|gif|png|mp4)$/', $img, $return)) {
+		$return = $img;
+	}
+
+	$curl = curl_init();
+	curl_setopt($curl, CURLOPT_URL, $img);
+	curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	$response = curl_exec($curl);
+
+	if (preg_match('/meta[^>]+"og:video"[^>]+content="([^"]+)"[^>]+/', $response, $match)) {
+		$return = $match[1];
+	}
+
+	if (empty($return)) {
+		header('HTTP/1.1 404 Not Found');
+		exit($img);
+	}
+
+	header('HTTP/1.1 301 Moved Permanently');
+	header('Location: ' . $return);
+	exit();
+}
 if (array_key_exists('url', $_GET)
 	&& ! empty ($_GET['url']))
 {
@@ -162,7 +189,12 @@ header('Cache-Control: private, max-age=' . (30 * 24 * 60 * 60));
 						// if media_embed not empty, do something else
 						// if url has /a/, show collection
 						if (el.data.url.match(/\/a\//)) return;
-						_data.push({id:el.data.id, img:el.data.url.replace(/gifv$/, 'gif'), caption:el.data.title});
+						if (el.data.url.match(/\/removed.png\//)) return;
+						_data.push({
+							id:el.data.id,
+							img:'?img=' + encodeURIComponent(el.data.url.replace(/gifv$/, 'gif')),
+							caption:el.data.title,
+						});
 					});
 					if (fotorama.data) {
 						$.each(_data, function(i, el) {
