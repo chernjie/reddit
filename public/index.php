@@ -23,7 +23,6 @@ if (array_key_exists('img', $_GET)
 		exit($img);
 	}
 
-	header('HTTP/1.1 301 Moved Permanently');
 	header('Location: ' . $return);
 	exit();
 }
@@ -190,11 +189,27 @@ header('Cache-Control: private, max-age=' . (30 * 24 * 60 * 60));
 						// if url has /a/, show collection
 						if (el.data.url.match(/\/a\//)) return;
 						if (el.data.url.match(/\/removed.png\//)) return;
-						_data.push({
-							id:el.data.id,
-							img:'?img=' + encodeURIComponent(el.data.url.replace(/gifv$/, 'gif')),
-							caption:el.data.title,
-						});
+						var img = el.data.url.replace(/gifv$/, 'gif');
+						var video = !img.match(/(jpg|jpeg|gif|png)$/i);
+						var imgData = {
+							id: el.data.id,
+							img: img,
+							caption: el.data.title,
+						}
+						if (video) {
+							var _url = new URL(img)
+							if (_url.hostname === 'gfycat.com' && _url.pathname.match(/[A-Z]/)) {
+								imgData.img = 'https://thumbs.gfycat.com' + _url.pathname + '-size_restricted.gif'
+								imgData.video = 'https://thumbs.gfycat.com' + _url.pathname + '-mobile.mp4'
+							} else if (_url.hostname === 'imgur.com') {
+								imgData.img = 'https://i.imgur.com' + _url.pathname + 'h.jpg'
+								imgData.video = 'https://i.imgur.com' + _url.pathname + '.mp4'
+							} else {
+								imgData.img   = '?img=' + encodeURIComponent(img)
+								imgData.video = '?img=' + encodeURIComponent(img)
+							}
+						}
+						_data.push(imgData);
 					});
 					if (fotorama.data) {
 						$.each(_data, function(i, el) {
