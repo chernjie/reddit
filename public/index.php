@@ -1,5 +1,9 @@
 <?php
 
+# TODO: introduce blacklist
+# TODO: introduce persisted favourites
+# TODO: display gyfcat html content
+
 if (array_key_exists('img', $_GET)
 	&& ! empty ($_GET['img']))
 {
@@ -184,6 +188,7 @@ header('Cache-Control: private, max-age=' . (30 * 24 * 60 * 60));
 				var timeout = 0;
 				$.getJSON(url, function (data) {
 					var _data = [];
+					$('.fotorama').data().fotorama.options.width = "100%"
 					$.each(data.data.children, function(i, el) {
 						// if media_embed not empty, do something else
 						// if url has /a/, show collection
@@ -248,6 +253,11 @@ header('Cache-Control: private, max-age=' . (30 * 24 * 60 * 60));
 				if ( event.which == 68 ) {
 					event.preventDefault();
 					deleteImage(fotorama.activeFrame.id);
+					updateCounter();
+				}
+				if ( event.which == 70 ) {
+					event.preventDefault();
+					addImageToFavourite(fotorama.activeFrame.id);
 					updateCounter();
 				}
 			});
